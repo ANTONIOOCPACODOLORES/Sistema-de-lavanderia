@@ -5,18 +5,23 @@ from config import Base
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from datetime import datetime
 
-
+#pylint disable.too -few-public-methods
 class User(Base):
-    __tablename__ = "the_users"
+    __tablename__ = "tbb_usuarios"
+    #clase para especificar la tabla de usuarios
 
     id = Column(Integer, primary_key=True, index=True)
     rol_id = Column(Integer, ForeignKey('the_rols.id'))
     nombre = Column(String(100), nullable=False)
     primer_apellido = Column(String(100), nullable=False)
     segundo_apellido = Column(String(100), nullable=False)
+    diteccion = column (String(200))
     correo = Column(String(150), unique=True, nullable=False)
     contraseña = Column(String(255), nullable=False)
     telefono_celular = Column(String(20))
+    estatus = column (Boolean)
+    fecha_actualizacion = column (datetime)
+    fecha_registro = column (datetime)
 
 
 
