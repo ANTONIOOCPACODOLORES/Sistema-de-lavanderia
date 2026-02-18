@@ -10,11 +10,12 @@ import models.model_servicio_vehiculo
 
 # importar rutas (routers)
 from routes.routes_rol import rol
-from routes.routes_servicio import servicio
-from routes.routes_servicio_vehiculo import servicios_vehiculo
-from routes.routes_usuario import usuario
-from routes.routes_vehiculo import vehiculo
+from routes.routes_service import servicio
+from routes.routes_service_vehicles import servicios_vehiculo
+from routes.routes_user import usuario
+from routes.routes_vehicle import vehiculo
 
+# crear la app
 app = FastAPI(
     title="Sistema de Control de Autolavado",
     description="Sistema de creación y almacenamiento de información y ventas en un autolavado",
