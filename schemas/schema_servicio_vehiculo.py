@@ -30,6 +30,22 @@ class ServicioVehiculoCreate(ServicioVehiculoBase):
     pass
 
 
+class ServicioVehiculoUpdate(BaseModel):
+    """
+    Esquema para actualizar servicio de vehiculo.
+    Todos los campos son opcionales.
+    """
+    au_id: Optional[int] = None
+    cajero_id: Optional[int] = None
+    operativo_id: Optional[int] = None
+    se_id: Optional[int] = None
+    as_fecha: Optional[datetime] = None
+    as_hora: Optional[time] = None
+    as_estatus: Optional[str] = None
+    as_estado: Optional[bool] = None
+    fecha_modificacion: Optional[datetime] = None
+
+
 class ServicioVehiculoResponse(ServicioVehiculoBase):
     """
     Esquema de respuesta de servicio de vehiculo.
@@ -37,5 +53,5 @@ class ServicioVehiculoResponse(ServicioVehiculoBase):
     as_id: int
 
     class Config:
-        # ✅ Pydantic v2
+        # Pydantic v2
         from_attributes = True
