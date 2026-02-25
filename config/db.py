@@ -5,13 +5,24 @@ from sqlalchemy.orm import sessionmaker
 # URL de conexión a MySQL
 SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:1234@127.0.0.1:3307/bd_carwash"
 
-# Motor de SQLAlchemy
+# Motor
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-# Sesión de base de datos
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Sesión
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
-# Base para los modelos
+# Base
 Base = declarative_base()
- 
 
+
+# 👇 ESTA FUNCIÓN VA AQUÍ (y SOLO AQUÍ)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

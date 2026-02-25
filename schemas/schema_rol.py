@@ -6,33 +6,37 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 
-# pylint: disable=too-few-public-methods
+
 class RolBase(BaseModel):
     """
     Esquema base de Rol.
     """
     nombre_rol: str
     estatus: bool
-    fecha_registro: datetime
-    fecha_modificacion: datetime
+
 
 class RolCreate(RolBase):
     """
     Esquema para crear rol.
     """
+    pass
 
-class RolUpdate(RolBase):
+
+class RolUpdate(BaseModel):
     """
     Esquema para actualizar rol.
     """
+    nombre_rol: Optional[str] = None
+    estatus: Optional[bool] = None
+
 
 class Rol(RolBase):
     """
     Esquema de respuesta de rol.
     """
     id: int
+    fecha_registro: datetime
+    fecha_modificacion: datetime
+
     class Config:
-        '''
-        Configuración para permitir la conversión de objetos ORM a modelos Pydantic.
-        '''
         orm_mode = True

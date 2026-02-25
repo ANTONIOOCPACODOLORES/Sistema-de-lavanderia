@@ -1,31 +1,91 @@
-'''
-    Rutas para la gestión de los servicios de vehiculos
-'''
+"""
+Rutas para la gestión de los servicios de vehículos
+"""
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import config.db, models.model_servicio_vehiculo, schemas.schema_servicio_vehiculo,crud.crud_servicio_vehiculo
 from typing import List
 
-servicios_vehiculo = APIRouter()
+from config.db import get_db
+from schemas.schema_servicio_vehiculo import (
+    ServicioVehiculo,
+    ServicioVehiculoCreate,
+    ServicioVehiculoUpdate
+)
+from crud.crud_servicio_vehiculo import (
+    get_servicio_vehiculo,
+    get_servicio_vehiculo_by_id,
+    create_servicio_vehiculo,
+    update_servicio_vehiculo,
+    delete_servicio_vehiculo
+)
 
-models.model_servicio_vehiculo.Base.metadata.create_all(bind=config.db.engine)
+servicios_vehiculo = APIRouter(
+    prefix="/servicios-vehiculo",
+    tags=["ServicioVehiculo"]
+)
 
-def get_db():
-    '''
-    Función para obtener la sesión de la base de datos.
-    '''
-    db = config.db.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# ---------------------------
+# GET /servicios-vehiculo/
+# ---------------------------
+@servicios_vehiculo.get("/", response_model=List[ServicioVehiculo])
+def listar_servicios_vehiculo(
+    skip: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    return get_servicio_vehiculo(db, skip, limit)
 
-@servicios_vehiculo.get("/servicios-vehiculo/", response_model=List[schemas.schema_servicio_vehiculo.ServicioVehiculoBase], tags=["ServicioVehiculo"])
-async def read_servicio_vehiculo(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    '''
-    Endpoint para obtener una lista de servicios de vehículo con paginación.
-    '''
-    db_servicio_vehiculo = crud.crud_servicio_vehiculo.get_servicio_vehiculo(db=db, skip=skip, limit=limit)
-    return db_servicio_vehiculo
- 
+
+# ---------------------------
+# GET /servicios-vehiculo/{id}
+# ---------------------------
+@servicios_vehiculo.get("/{id}", response_model=ServicioVehiculo)
+def obtener_servicio_vehiculo(
+    id: int,
+    db: Session = Depends(get_db)
+):
+    servicio = get_servicio_vehiculo_by_id(db, id)
+    if not servicio:
+        raise HTTPException(status_code=404, detail="ServicioVehiculo no encontrado")
+    return servicio
+
+
+# ---------------------------
+# POST /servicios-vehiculo/
+# ---------------------------
+@servicios_vehiculo.post("/", response_model=ServicioVehiculo)
+def crear_servicio_vehiculo(
+    data: ServicioVehiculoCreate,
+    db: Session = Depends(get_db)
+):
+    return create_servicio_vehiculo(db, data)
+
+
+# ---------------------------
+# PUT /servicios-vehiculo/{id}
+# ---------------------------
+@servicios_vehiculo.put("/{id}", response_model=ServicioVehiculo)
+def actualizar_servicio_vehiculo(
+    id: int,
+    data: ServicioVehiculoUpdate,
+    db: Session = Depends(get_db)
+):
+    servicio = update_servicio_vehiculo(db, id, data)
+    if not servicio:
+        raise HTTPException(status_code=404, detail="ServicioVehiculo no encontrado")
+    return servicio
+
+
+# ---------------------------
+# DELETE /servicios-vehiculo/{id}
+# ---------------------------
+@servicios_vehiculo.delete("/{id}")
+def eliminar_servicio_vehiculo(
+    id: int,
+    db: Session = Depends(get_db)
+):
+    servicio = delete_servicio_vehiculo(db, id)
+    if not servicio:
+        raise HTTPException(status_code=404, detail="ServicioVehiculo no encontrado")
+    return {"message": "ServicioVehiculo eliminado correctamente"}

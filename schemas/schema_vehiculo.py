@@ -6,42 +6,35 @@ from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 
-# pylint: disable=too-few-public-methods
+
 class VehiculoBase(BaseModel):
-    """
-    Esquema base de Vehiculo.
-    """
     au_placa: str
     au_modelo: str
     au_serie: str
-    au_color: str
-    au_tipo: str
-    au_anio: int
-    estatus: bool
-    fecha_registro: datetime
-    fecha_modificacion: datetime
+    au_color: Optional[str] = None
+    au_tipo: Optional[str] = None
+    au_anio: Optional[int] = None
 
 
 class VehiculoCreate(VehiculoBase):
-    """
-    Esquema para crear vehiculo.
-    """
+    us_id: int
 
 
-class VehiculoUpdate(VehiculoBase):
-    """
-    Esquema para actualizar vehiculo.
-    """
+class VehiculoUpdate(BaseModel):
+    au_modelo: Optional[str] = None
+    au_color: Optional[str] = None
+    au_tipo: Optional[str] = None
+    au_anio: Optional[int] = None
+    estatus: Optional[bool] = None
+    fecha_modificacion: Optional[datetime] = None
 
 
 class VehiculoResponse(VehiculoBase):
-    """
-    Esquema de respuesta de vehiculo.
-    """
     au_id: int
+    us_id: int
+    estatus: bool
+    fecha_registro: datetime
+    fecha_modificacion: Optional[datetime]
 
     class Config:
-        '''
-        Configuración para permitir la conversión de objetos ORM a modelos Pydantic.
-        '''
-        orm_mode = True
+        from_attributes = True

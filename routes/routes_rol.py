@@ -8,15 +8,21 @@ from typing import List
 
 import config.db
 from models import model_rols
-from schemas import schema_rol
+from schemas.schema_rol import Rol, RolCreate, RolUpdate
 from crud import crud_rol
 
-rol = APIRouter()
+rol = APIRouter(
+    prefix="/rol",
+    tags=["Rol"]
+)
 
 # Crear tablas si no existen
-model_rols.Base.metadata.create_all(bind=config.db.engine, checkfirst=True)
+model_rols.Base.metadata.create_all(
+    bind=config.db.engine,
+    checkfirst=True
+)
 
-# Función para obtener la sesión de la base de datos
+# Dependencia DB
 def get_db():
     db = config.db.SessionLocal()
     try:
@@ -24,15 +30,68 @@ def get_db():
     finally:
         db.close()
 
-# Endpoint para listar roles
-@rol.get(
-    "/rol/", 
-    response_model=List[schema_rol.Rol], 
-    tags=["Rol"]
-)
-async def read_rol(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    """
-    Endpoint para obtener una lista de roles con paginación.
-    """
-    db_rol = crud_rol.get_rol(db=db, skip=skip, limit=limit)
-    return db_rol
+
+# -------------------------
+# GET /rol/
+# -------------------------
+@rol.get("/", response_model=List[Rol])
+def listar_roles(
+    skip: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    return crud_rol.get_rol(db, skip, limit)
+
+
+# -------------------------
+# GET /rol/{id}
+# -------------------------
+@rol.get("/{rol_id}", response_model=Rol)
+def obtener_rol(
+    rol_id: int,
+    db: Session = Depends(get_db)
+):
+    rol_db = crud_rol.get_rol_by_id(db, rol_id)
+    if not rol_db:
+        raise HTTPException(status_code=404, detail="Rol no encontrado")
+    return rol_db
+
+
+# -------------------------
+# POST /rol/
+# -------------------------
+@rol.post("/", response_model=Rol)
+def crear_rol(
+    rol_data: RolCreate,
+    db: Session = Depends(get_db)
+):
+    return crud_rol.create_rol(db, rol_data)
+
+
+# -------------------------
+# PUT /rol/{id}
+# -------------------------
+@rol.put("/{rol_id}", response_model=Rol)
+def actualizar_rol(
+    rol_id: int,
+    rol_data: RolUpdate,
+    db: Session = Depends(get_db)
+):
+    rol_actualizado = crud_rol.update_rol(db, rol_id, rol_data)
+    if not rol_actualizado:
+        raise HTTPException(status_code=404, detail="Rol no encontrado")
+    return rol_actualizado
+
+
+# -------------------------
+# DELETE /rol/{id}
+# -------------------------
+@rol.delete("/{rol_id}")
+def eliminar_rol(
+    rol_id: int,
+    db: Session = Depends(get_db)
+):
+    rol_eliminado = crud_rol.delete_rol(db, rol_id)
+    if not rol_eliminado:
+        raise HTTPException(status_code=404, detail="Rol no encontrado")
+    return {"message": "Rol eliminado correctamente"}
