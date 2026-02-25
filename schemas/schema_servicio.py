@@ -35,8 +35,11 @@ class ServicioResponse(ServicioBase):
     Esquema de respuesta de servicio.
     """
     se_id: int
-    class Config:
+    class Config:{
         '''
         Configuración para permitir la conversión de objetos ORM a modelos Pydantic.
         '''
-        orm_mode = True
+            "from_atributes":True
+    }
+        
+        

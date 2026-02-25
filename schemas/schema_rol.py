@@ -38,5 +38,7 @@ class Rol(RolBase):
     fecha_registro: datetime
     fecha_modificacion: datetime
 
-    class Config:
-        orm_mode = True
+    class Config:{
+        "from_attributes": True
+    }
+        

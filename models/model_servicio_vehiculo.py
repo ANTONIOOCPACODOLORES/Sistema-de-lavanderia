@@ -69,9 +69,9 @@ class ServicioVehiculo(Base):
     )
 
     as_hora = Column(
-        Time,
-        server_default=func.current_time(),
-        nullable=False
+    DateTime,
+    server_default=func.now(),
+    nullable=False
     )
 
     as_estatus = Column(
