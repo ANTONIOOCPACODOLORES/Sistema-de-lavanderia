@@ -1,19 +1,8 @@
-"""
-Modelo Usuario para la base de datos.
-"""
-
-# pylint: disable=import-error
-# pylint: disable=too-few-public-methods
-
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from config.db import Base
 
-
 class Usuario(Base):
-    """
-    Representa la tabla tbb_usuario.
-    """
     __tablename__ = "tbb_usuario"
 
     id = Column(Integer, primary_key=True, index=True)

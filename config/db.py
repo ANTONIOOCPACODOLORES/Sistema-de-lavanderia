@@ -19,7 +19,8 @@ SessionLocal = sessionmaker(
 Base = declarative_base()
 
 
-# 👇 ESTA FUNCIÓN VA AQUÍ (y SOLO AQUÍ)
+
+# Función para obtener sesión de DB
 def get_db():
     db = SessionLocal()
     try:
