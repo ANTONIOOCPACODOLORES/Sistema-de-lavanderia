@@ -1,29 +1,32 @@
+"""
+Este archivo permite conectar con la base de datos.
+Utiliza variables de entorno para proteger las credenciales.
+"""
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 
-# URL de conexión a MySQL
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:1234@127.0.0.1:3307/bd_carwash"
+# pylint: disable=invalid-name
 
-# Motor
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# Cargar las variables desde el archivo .env
+load_dotenv()
 
-# Sesión
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
+# Obtener las credenciales de las variables de entorno
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
+
+# Construimos la URL inyectando las variables de forma segura
+SQLALCHEMY_DATABASE_URL = (
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 
-# Base
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
+# Se usa PascalCase (SessionLocal) porque es una "fábrica" de sesiones (Clase)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
-
-
-
-# Función para obtener sesión de DB
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()

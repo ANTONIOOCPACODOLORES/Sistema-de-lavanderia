@@ -1,75 +1,90 @@
 """
-CRUD para el modelo ServicioVehiculo
+Módulo CRUD para la gestión del modelo de ServicioVehiculo.
+Contiene las operaciones de base de datos para crear, leer,
+actualizar y eliminar el registro de servicios aplicados a vehículos.
 """
 
 from sqlalchemy.orm import Session
-from models.model_servicio_vehiculo import ServicioVehiculo
-from schemas.schema_servicio_vehiculo import (
-    ServicioVehiculoCreate,
-    ServicioVehiculoUpdate
-)
 
-# ---------------------------
-# GET LIST
-# ---------------------------
+# Apagamos temporalmente la advertencia de importación para las carpetas locales
+# pylint: disable=import-error
+from models import model_servicio_vehiculo
+from schemas import schema_servicio_vehiculo
+# pylint: enable=import-error
+
+
 def get_servicio_vehiculo(db: Session, skip: int = 0, limit: int = 10):
-    return (
-        db.query(ServicioVehiculo)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+    """
+    Obtiene una lista paginada del historial de servicios de vehículos.
+    """
+    return db.query(
+        model_servicio_vehiculo.ServicioVehiculo
+    ).offset(skip).limit(limit).all()
 
-# ---------------------------
-# GET BY ID
-# ---------------------------
-def get_servicio_vehiculo_by_id(db: Session, id: int):
-    return (
-        db.query(ServicioVehiculo)
-        .filter(ServicioVehiculo.id == id)
-        .first()
-    )
 
-# ---------------------------
-# CREATE
-# ---------------------------
+def get_servicio_vehiculo_by_id(db: Session, as_id: int):
+    """
+    Busca y retorna un registro de servicio de vehículo por su ID (as_id).
+    """
+    return db.query(model_servicio_vehiculo.ServicioVehiculo).filter(
+        model_servicio_vehiculo.ServicioVehiculo.as_id == as_id
+    ).first()
+
+
 def create_servicio_vehiculo(
     db: Session,
-    data: ServicioVehiculoCreate
+    servicio_in: schema_servicio_vehiculo.ServicioVehiculoCreate
 ):
-    nuevo = ServicioVehiculo(**data.model_dump())
-    db.add(nuevo)
+    """
+    Crea un nuevo registro de servicio de vehículo en la base de datos.
+    """
+    db_servicio = model_servicio_vehiculo.ServicioVehiculo(
+        au_id=servicio_in.au_id,
+        cajero_id=servicio_in.cajero_id,
+        operativo_id=servicio_in.operativo_id,
+        se_id=servicio_in.se_id,
+        as_fecha=servicio_in.as_fecha,
+        as_hora=servicio_in.as_hora,
+        as_estatus=servicio_in.as_estatus,
+        as_estado=servicio_in.as_estado
+    )
+    db.add(db_servicio)
     db.commit()
-    db.refresh(nuevo)
-    return nuevo
+    db.refresh(db_servicio)
+    return db_servicio
 
-# ---------------------------
-# UPDATE
-# ---------------------------
+
 def update_servicio_vehiculo(
     db: Session,
-    id: int,
-    data: ServicioVehiculoUpdate
+    as_id: int,
+    servicio_in: schema_servicio_vehiculo.ServicioVehiculoUpdate
 ):
-    servicio = get_servicio_vehiculo_by_id(db, id)
-    if not servicio:
-        return None
+    """
+    Actualiza los datos de un registro de servicio de vehículo.
+    Utiliza model_dump de Pydantic V2 para la extracción de datos.
+    """
+    db_servicio = db.query(model_servicio_vehiculo.ServicioVehiculo).filter(
+        model_servicio_vehiculo.ServicioVehiculo.as_id == as_id
+    ).first()
 
-    for key, value in data.model_dump().items():
-        setattr(servicio, key, value)
+    if db_servicio:
+        update_data = servicio_in.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_servicio, key, value)
+        db.commit()
+        db.refresh(db_servicio)
+    return db_servicio
 
-    db.commit()
-    db.refresh(servicio)
-    return servicio
 
-# ---------------------------
-# DELETE
-# ---------------------------
-def delete_servicio_vehiculo(db: Session, id: int):
-    servicio = get_servicio_vehiculo_by_id(db, id)
-    if not servicio:
-        return None
+def delete_servicio_vehiculo(db: Session, as_id: int):
+    """
+    Elimina un registro de servicio de vehículo por su ID.
+    """
+    db_servicio = db.query(model_servicio_vehiculo.ServicioVehiculo).filter(
+        model_servicio_vehiculo.ServicioVehiculo.as_id == as_id
+    ).first()
 
-    db.delete(servicio)
-    db.commit()
-    return servicio
+    if db_servicio:
+        db.delete(db_servicio)
+        db.commit()
+    return db_servicio

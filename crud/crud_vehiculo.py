@@ -1,24 +1,34 @@
 """
-Crud para el modelo de Vehiculo.
+Módulo del modelo Rol para la base de datos.
+Define la estructura de la tabla tbc_roles.
 """
 
-from sqlalchemy.orm import Session
-from models.model_vehiculo import Vehiculo
-from schemas.schema_vehiculo import VehiculoCreate
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
-def get_vehiculo(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Vehiculo).offset(skip).limit(limit).all()
+# Apagamos la advertencia de importación para las carpetas locales
+# pylint: disable=import-error
+from config.db import Base
+# pylint: enable=import-error
 
-def create_vehiculo(db: Session, vehiculo: VehiculoCreate):
-    nuevo = Vehiculo(**vehiculo.dict())
-    db.add(nuevo)
-    db.commit()
-    db.refresh(nuevo)
-    return nuevo
 
-def delete_vehiculo(db: Session, au_id: int):
-    vehiculo = db.query(Vehiculo).filter(Vehiculo.au_id == au_id).first()
-    if vehiculo:
-        db.delete(vehiculo)
-        db.commit()
-    return vehiculo
+# Apagamos la advertencia de "muy pocos métodos públicos" porque
+# los modelos ORM actúan como estructuras de datos, no como clases lógicas.
+# pylint: disable=too-few-public-methods
+class Rol(Base):
+    """
+    Representa la tabla 'tbc_roles' en la base de datos.
+    Contiene la definición de los diferentes roles del sistema.
+    """
+    __tablename__ = "tbc_roles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre_rol = Column(String(60), nullable=False, unique=True)
+    estatus = Column(Boolean, default=True)
+    # Se recomienda usar func.now() con paréntesis en SQLAlchemy
+    # pylint: disable=not-callable
+    fecha_registro = Column(DateTime, default=func.now())
+    fecha_modificacion = Column(DateTime, onupdate=func.now())
+    # pylint: enable=not-callable
+    usuarios = relationship("Usuario", back_populates="rol")
