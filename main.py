@@ -30,8 +30,12 @@ from routes.routes_vehiculo import vehiculo
 
 
 app = FastAPI(
-    title="Sistema de Control de Autolavado",
-    description="Sistema de creación y almacenamiento de información y ventas en un autolavado",
+    title="Sistema de Autolavado CarWash API",
+    description="""
+API REST diseñada para la gestión integral de un sistema de autolavado.
+Permite administrar clientes, vehículos, servicios, roles y usuarios,
+optimizando los procesos operativos y el control de la información.
+""",
     version="1.0.0"
 )
 

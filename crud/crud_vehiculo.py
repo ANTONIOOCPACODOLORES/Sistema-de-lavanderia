@@ -1,34 +1,79 @@
 """
-Módulo del modelo Rol para la base de datos.
-Define la estructura de la tabla tbc_roles.
+Módulo CRUD para Vehículo.
+Contiene las operaciones de Crear, Leer, Actualizar y Eliminar
+registros de la tabla vehículos.
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Session
 
-# Apagamos la advertencia de importación para las carpetas locales
+# Importamos el modelo Vehiculo (NO se redefine aquí)
 # pylint: disable=import-error
-from config.db import Base
+from models.model_vehiculo import Vehiculo
 # pylint: enable=import-error
 
 
-# Apagamos la advertencia de "muy pocos métodos públicos" porque
-# los modelos ORM actúan como estructuras de datos, no como clases lógicas.
-# pylint: disable=too-few-public-methods
-class Rol(Base):
+# =========================
+# CREATE
+# =========================
+def crear_vehiculo(db: Session, vehiculo: Vehiculo):
     """
-    Representa la tabla 'tbc_roles' en la base de datos.
-    Contiene la definición de los diferentes roles del sistema.
+    Crea un nuevo vehículo en la base de datos.
     """
-    __tablename__ = "tbc_roles"
+    db.add(vehiculo)
+    db.commit()
+    db.refresh(vehiculo)
+    return vehiculo
 
-    id = Column(Integer, primary_key=True, index=True)
-    nombre_rol = Column(String(60), nullable=False, unique=True)
-    estatus = Column(Boolean, default=True)
-    # Se recomienda usar func.now() con paréntesis en SQLAlchemy
-    # pylint: disable=not-callable
-    fecha_registro = Column(DateTime, default=func.now())
-    fecha_modificacion = Column(DateTime, onupdate=func.now())
-    # pylint: enable=not-callable
-    usuarios = relationship("Usuario", back_populates="rol")
+
+# =========================
+# READ
+# =========================
+def obtener_vehiculos(db: Session, skip: int = 0, limit: int = 100):
+    """
+    Obtiene la lista de vehículos.
+    """
+    return db.query(Vehiculo).offset(skip).limit(limit).all()
+
+
+def obtener_vehiculo_por_id(db: Session, vehiculo_id: int):
+    """
+    Obtiene un vehículo por su ID.
+    """
+    return db.query(Vehiculo).filter(Vehiculo.id == vehiculo_id).first()
+
+
+# =========================
+# UPDATE
+# =========================
+def actualizar_vehiculo(db: Session, vehiculo_id: int, datos: dict):
+    """
+    Actualiza un vehículo existente.
+    """
+    vehiculo = obtener_vehiculo_por_id(db, vehiculo_id)
+
+    if not vehiculo:
+        return None
+
+    for campo, valor in datos.items():
+        setattr(vehiculo, campo, valor)
+
+    db.commit()
+    db.refresh(vehiculo)
+    return vehiculo
+
+
+# =========================
+# DELETE
+# =========================
+def eliminar_vehiculo(db: Session, vehiculo_id: int):
+    """
+    Elimina un vehículo por su ID.
+    """
+    vehiculo = obtener_vehiculo_por_id(db, vehiculo_id)
+
+    if not vehiculo:
+        return None
+
+    db.delete(vehiculo)
+    db.commit()
+    return vehiculo

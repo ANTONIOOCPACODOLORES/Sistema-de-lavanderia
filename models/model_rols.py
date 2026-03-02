@@ -7,28 +7,38 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
-# Apagamos la advertencia de importación para las carpetas locales
+# Desactivamos advertencias de importación para módulos locales
 # pylint: disable=import-error
 from config.db import Base
 # pylint: enable=import-error
 
 
-# Apagamos la advertencia de "muy pocos métodos públicos" porque
-# los modelos ORM actúan como estructuras de datos, no como clases lógicas.
+# Desactivamos la advertencia de "muy pocos métodos públicos"
+# porque los modelos ORM representan tablas, no lógica de negocio.
 # pylint: disable=too-few-public-methods
 class Rol(Base):
     """
     Representa la tabla 'tbc_roles' en la base de datos.
     Contiene la definición de los diferentes roles del sistema.
     """
+
     __tablename__ = "tbc_roles"
 
+    # Identificador único del rol
     id = Column(Integer, primary_key=True, index=True)
+
+    # Nombre del rol (ej. Admin, Usuario, Cliente)
     nombre_rol = Column(String(60), nullable=False, unique=True)
+
+    # Estatus del rol (activo / inactivo)
     estatus = Column(Boolean, default=True)
-    # Se recomienda usar func.now() con paréntesis en SQLAlchemy
-    # pylint: disable=not-callable
+
+    # Fecha de creación del registro
     fecha_registro = Column(DateTime, default=func.now())
+
+    # Fecha de última modificación del registro
     fecha_modificacion = Column(DateTime, onupdate=func.now())
-    # pylint: enable=not-callable
+
+    # Relación con la tabla usuarios
     usuarios = relationship("Usuario", back_populates="rol")
+# pylint: enable=too-few-public-methods
