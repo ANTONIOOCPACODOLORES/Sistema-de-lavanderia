@@ -50,6 +50,7 @@ async def read_usuario(
     return crud_usuario.get_usuario(db=db, skip=skip, limit=limit)
 
 
+
 @usuario.post(
     "/usuario/",
     response_model=schema_usuario.Usuario,
@@ -62,15 +63,26 @@ async def create_usuario(
     """
     Crea un nuevo usuario (Registro). Endpoint público sin candado.
     """
-    db_user = crud_usuario.get_usuario_by_username(
-        db, usuario=user_in.usuario
-    )
-    if db_user:
-        raise HTTPException(
-            status_code=400,
-            detail="El nombre de usuario ya está registrado"
+    try:
+        print(f"✅ 1. Datos recibidos: {user_in}")
+        db_user = crud_usuario.get_usuario_by_username(
+            db, usuario=user_in.usuario
         )
-    return crud_usuario.create_usuario(db=db, usuario_in=user_in)
+        print(f"✅ 2. Usuario existente: {db_user}")
+        if db_user:
+            raise HTTPException(
+                status_code=400,
+                detail="El nombre de usuario ya está registrado"
+            )
+        print("✅ 3. Creando usuario...")
+        result = crud_usuario.create_usuario(db=db, usuario_in=user_in)
+        print(f"✅ 4. Usuario creado: {result}")
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ ERROR EN ENDPOINT: {type(e).__name__}: {e}")
+        raise
 
 
 @usuario.put(
